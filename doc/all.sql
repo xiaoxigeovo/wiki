@@ -1,12 +1,15 @@
 drop table if exists `test`;
 create table `test`
 (
-    `id`         bigint      not null comment 'id',
-    `name`       varchar(50) not null comment '名称',
-    `password`       varchar(50) not null comment '密码',
+    `id`       bigint      not null comment 'id',
+    `name`     varchar(50) not null comment '名称',
+    `password` varchar(50) not null comment '密码',
     primary key (`id`)
 ) engine = innodb
   default charset = utf8mb4 comment ='测试';
+
+insert into `test` (id, name, password)
+values (1, '测试', 'password');
 
 
 drop table if exists `doc`;
@@ -62,7 +65,7 @@ create table `ebook_snapshot`
     `view_increase` int                   not null default 0 comment '阅读增长',
     `vote_increase` int                   not null default 0 comment '点赞增长',
     primary key (`id`),
-    unique key `ebook_id_date_unique` (`ebook_id`,`date`)
+    unique key `ebook_id_date_unique` (`ebook_id`, `date`)
 ) engine = innodb
   default charset = utf8mb4 comment ='电子书快照表';
 
