@@ -8,7 +8,7 @@
         <a-sub-menu key="sub1">
           <template #title>
               <span>
-                <user-outlined />
+                <user-outlined/>
                 subnav 1
               </span>
           </template>
@@ -20,7 +20,7 @@
         <a-sub-menu key="sub2">
           <template #title>
               <span>
-                <laptop-outlined />
+                <laptop-outlined/>
                 subnav 2
               </span>
           </template>
@@ -32,7 +32,7 @@
         <a-sub-menu key="sub3">
           <template #title>
               <span>
-                <notification-outlined />
+                <notification-outlined/>
                 subnav 3
               </span>
           </template>
@@ -51,7 +51,7 @@
           <a-list-item key="item.name">
             <template #actions>
           <span v-for="{ type, text } in actions" :key="type">
-            <component v-bind:is="type" style="margin-right: 8px" />
+            <component v-bind:is="type" style="margin-right: 8px"/>
             {{ text }}
           </span>
             </template>
@@ -59,7 +59,9 @@
               <template #title>
                 <a :href="item.href">{{ item.name }}</a>
               </template>
-              <template #avatar><a-avatar :src="item.cover" /></template>
+              <template #avatar>
+                <a-avatar :src="item.cover"/>
+              </template>
             </a-list-item-meta>
           </a-list-item>
         </template>
@@ -69,22 +71,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, reactive, toRef} from 'vue';
+import {defineComponent, onMounted, ref, reactive, toRef} from 'vue';
 
 import axios from 'axios';
 
-const listData: any = [];
-for (let i = 0; i < 23; i++) {
-  listData.push({
-    href: 'https://www.antdv.com/',
-    title: `ant design vue part ${i}`,
-    avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-    description:
-        'Ant Design, a design language for background applications, is refined by Ant UED Team.',
-    content:
-        'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
-  });
-}
+// const listData: any = [];
+// for (let i = 0; i < 23; i++) {
+//   listData.push({
+//     href: 'https://www.antdv.com/',
+//     title: `ant design vue part ${i}`,
+//     avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+//     description:
+//         'Ant Design, a design language for background applications, is refined by Ant UED Team.',
+//     content:
+//         'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
+//   });
+// }
 
 export default defineComponent({
   name: 'Home',
@@ -93,18 +95,21 @@ export default defineComponent({
     const ebooks1 = reactive({books: []});
 
     onMounted(() => {
-      console.log("onMounted");
-      axios.get(process.env.VUE_APP_SERVER+"/ebook/list").then((response) => {
+      axios.get("/ebook/list", {
+        params: {
+          page: 1,
+          size: 1000
+        }
+      }).then((response) => {
         const data = response.data;
-        ebooks.value = data.content;
-        ebooks1.books = data.content;
-        console.log(response);
+        ebooks.value = data.content.list;
+        //ebooks1.books = data.content;
       });
     });
     return {
       ebooks,
-      ebooks2: toRef(ebooks1,"books"),
-      listData,
+      // ebooks2: toRef(ebooks1,"books"),
+      // listData,
       pagination: {
         onChange: (page: any) => {
           console.log(page);
@@ -112,16 +117,16 @@ export default defineComponent({
         pageSize: 3,
       },
       actions: [
-        { type: 'StarOutlined', text: '156' },
-        { type: 'LikeOutlined', text: '156' },
-        { type: 'MessageOutlined', text: '2' },
+        {type: 'StarOutlined', text: '156'},
+        {type: 'LikeOutlined', text: '156'},
+        {type: 'MessageOutlined', text: '2'},
       ],
     }
   }
 });
 </script>
 
-<style>
+<style scoped>
 .ant-avatar {
   width: 50px;
   height: 50px;
