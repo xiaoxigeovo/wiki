@@ -8,6 +8,7 @@ import com.lujingxi.wiki.exception.BusinessException;
 import com.lujingxi.wiki.exception.BusinessExceptionCode;
 import com.lujingxi.wiki.mapper.UserMapper;
 import com.lujingxi.wiki.req.UserQueryReq;
+import com.lujingxi.wiki.req.UserResetPasswordReq;
 import com.lujingxi.wiki.req.UserSaveReq;
 import com.lujingxi.wiki.resp.PageResp;
 import com.lujingxi.wiki.resp.UserQueryResp;
@@ -82,6 +83,7 @@ public class UserService {
         } else {
             // 更新
             user.setLoginName(null);
+            user.setPassword(null);
             userMapper.updateByPrimaryKeySelective(user);
         }
     }
@@ -103,5 +105,13 @@ public class UserService {
         } else {
             return userList.get(0);
         }
+    }
+
+    /**
+     * 修改密码
+     */
+    public void resetPassword(UserResetPasswordReq req) {
+        User user = CopyUtil.copy(req, User.class);
+        userMapper.updateByPrimaryKeySelective(user);
     }
 }
