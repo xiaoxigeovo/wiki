@@ -7,10 +7,8 @@
           @click="handleClick"
       >
         <a-menu-item key="welcome">
-          <router-link :to="'/'">
-            <MailOutlined/>
-            <span>欢迎</span>
-          </router-link>
+          <MailOutlined/>
+          <span>欢迎</span>
         </a-menu-item>
         <a-sub-menu v-for="item in level1" :key="item.id">
           <template v-slot:title>
@@ -26,7 +24,12 @@
     <a-layout-content
         :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
     >
-      <a-list item-layout="vertical" size="large" :grid="{ gutter: 20, column: 3 }" :data-source="ebooks">
+      <div class="welcome" v-show="isShowWelcome">
+        <!--        <the-welcome></the-welcome>-->
+        <h1>欢迎访问夜十七的知识库</h1>
+      </div>
+      <a-list v-show="!isShowWelcome" item-layout="vertical" size="large" :grid="{ gutter: 20, column: 3 }"
+              :data-source="ebooks">
         <template #renderItem="{ item }">
           <a-list-item key="item.name">
             <template #actions>
@@ -53,7 +56,7 @@
 <script lang="ts">
 import {defineComponent, onMounted, ref, reactive, toRef} from 'vue';
 import axios from 'axios';
-import { message } from 'ant-design-vue';
+import {message} from 'ant-design-vue';
 import {Tool} from "@/util/tool";
 
 // const listData: any = [];
@@ -75,7 +78,7 @@ export default defineComponent({
     const ebooks = ref();
     //const ebooks1 = reactive({books: []});
 
-    const level1 =  ref();
+    const level1 = ref();
     let categorys: any;
     /**
      * 查询所有分类
@@ -96,22 +99,37 @@ export default defineComponent({
       });
     };
 
-    const handleClick = () => {
-      console.log("menu click");
-    };
+    const isShowWelcome = ref(true);
+    let categoryId2 = 0;
 
-    onMounted(() => {
-      handleQueryCategory();
+    const handleQueryEbook = () => {
       axios.get("/ebook/list", {
         params: {
           page: 1,
-          size: 1000
+          size: 1000,
+          categoryId2: categoryId2
         }
       }).then((response) => {
         const data = response.data;
         ebooks.value = data.content.list;
-        //ebooks1.books = data.content;
+        // ebooks1.books = data.content;
       });
+    };
+
+    const handleClick = (value : any) => {
+      // console.log("menu click",value);
+      //isShowWelcome.value = value.key === 'welcome';
+      if (value.key === 'welcome') {
+        isShowWelcome.value = true;
+      } else {
+        categoryId2 = value.key;
+        isShowWelcome.value = false;
+        handleQueryEbook();
+      }
+    };
+
+    onMounted(() => {
+      handleQueryCategory();
     });
     return {
       ebooks,
@@ -131,6 +149,8 @@ export default defineComponent({
 
       handleClick,
       level1,
+
+      isShowWelcome,
     }
   }
 });
