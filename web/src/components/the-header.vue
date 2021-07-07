@@ -5,6 +5,7 @@
         theme="dark"
         mode="horizontal"
         :style="{ lineHeight: '64px' }"
+        class="menu-wrapper"
     >
       <a-menu-item key="/">
         <router-link to="/">首页</router-link>
@@ -21,8 +22,11 @@
       <a-menu-item key="/about">
         <router-link to="/about">关于我们</router-link>
       </a-menu-item>
-      <a-menu-item class="login-menu" @click="showLoginModal">
+      <a-menu-item class="login-menu" v-if="!user.id" @click="showLoginModal">
         <span>登录</span>
+      </a-menu-item>
+      <a-menu-item class="login-menu" v-else>
+        <span>您好：{{user.name}}</span>
       </a-menu-item>
     </a-menu>
 
@@ -45,9 +49,10 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from 'vue';
+import {computed, defineComponent, ref} from 'vue';
 import axios from "axios";
 import { message } from "ant-design-vue";
+import store from "@/store";
 
 declare let hexMd5: any;
 declare let KEY: any;
@@ -55,9 +60,13 @@ declare let KEY: any;
 export default defineComponent({
   name: 'the-header',
   setup () {
+    // 登录后保存
+    const user = computed(() => store.state.user);
+
+    // 用来登录
     const loginUser = ref({
       loginName: "test",
-      password: "test"
+      password: "test123"
     });
     const loginModalVisible = ref(false);
     const loginModalLoading = ref(false);
@@ -75,6 +84,8 @@ export default defineComponent({
         if (data.success) {
           loginModalVisible.value = false;
           message.success("登录成功！");
+
+          store.commit("setUser",data.content);
         } else {
           message.error(data.message);
         }
@@ -87,13 +98,17 @@ export default defineComponent({
       showLoginModal,
       loginUser,
       login,
+      user,
     }
   }
 });
 </script>
 
-<style>
-.login-menu {
-  color: white;
+<style scoped>
+::v-deep .menu-wrapper{
+  display: flex;
+}
+::v-deep .menu-wrapper .login-menu {
+  margin-left: auto;
 }
 </style>
