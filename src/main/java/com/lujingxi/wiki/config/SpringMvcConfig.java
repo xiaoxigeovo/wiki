@@ -23,7 +23,7 @@ public class SpringMvcConfig implements WebMvcConfigurer {
                         "/category/all",
                         "/ebook/list",
                         "/doc/all/**",
-                        "/doc/vote/**",
+                        "/doc/vote/**", //点赞接口不需要拦截
                         "/doc/find-content/**",
                         "/ebook-snapshot/**"
                 );
