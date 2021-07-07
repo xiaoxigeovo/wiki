@@ -2,8 +2,10 @@ package com.lujingxi.wiki.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.lujingxi.wiki.domain.Content;
 import com.lujingxi.wiki.domain.Doc;
 import com.lujingxi.wiki.domain.DocExample;
+import com.lujingxi.wiki.mapper.ContentMapper;
 import com.lujingxi.wiki.mapper.DocMapper;
 import com.lujingxi.wiki.req.DocQueryReq;
 import com.lujingxi.wiki.req.DocSaveReq;
@@ -29,6 +31,9 @@ public class DocService {
     private DocMapper docMapper;
 
     @Resource
+    private ContentMapper contentMapper;
+
+    @Resource
     private SnowFlake snowFlake;
 
     public List<DocQueryResp> all() {
@@ -50,8 +55,8 @@ public class DocService {
         List<Doc> docList = docMapper.selectByExample(docExample);
 
         PageInfo<Doc> pageInfo = new PageInfo<>(docList);
-        LOG.info("总行数 : {}",pageInfo.getTotal());
-        LOG.info("总页数 : {}",pageInfo.getPages());
+        LOG.info("总行数 : {}", pageInfo.getTotal());
+        LOG.info("总页数 : {}", pageInfo.getPages());
 
         /*List<DocResp> respList = new ArrayList<>();
         for (Doc doc : docList) {
@@ -72,27 +77,34 @@ public class DocService {
     /*
      * 保存
      * */
-    public void save (DocSaveReq req) {
-        Doc doc = CopyUtil.copy(req,Doc.class);
+    public void save(DocSaveReq req) {
+        Doc doc = CopyUtil.copy(req, Doc.class);
+        Content content = CopyUtil.copy(req, Content.class);
         if (ObjectUtils.isEmpty(req.getId())) {
             // 新增
             doc.setId(snowFlake.nextId());
             docMapper.insert(doc);
+
+            content.setId(doc.getId());
+            contentMapper.insert(content);
         } else {
             // 更新
             docMapper.updateByPrimaryKey(doc);
+            int count = contentMapper.updateByPrimaryKeyWithBLOBs(content);
+            if (count == 0) {
+                contentMapper.insert(content);
+            }
         }
     }
 
     /**
      * 删除
-     * */
-    public void delete (Long id) {
+     */
+    public void delete(Long id) {
         docMapper.deleteByPrimaryKey(id);
     }
 
-
-    public void delete (List<String> ids) {
+    public void delete(List<String> ids) {
         DocExample docExample = new DocExample();
         DocExample.Criteria criteria = docExample.createCriteria();
         criteria.andIdIn(ids);

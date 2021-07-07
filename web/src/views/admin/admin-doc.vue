@@ -30,7 +30,7 @@
               :default-expand-all-rows="true"
           >
             <template #name="{ text, record }">
-              {{record.sort}} {{text}}
+              {{ record.sort }} {{ text }}
             </template>
             <template v-slot:action="{ text, record }">
               <a-space size="small">
@@ -81,7 +81,7 @@
               <a-input v-model:value="doc.sort" placeholder="顺序"/>
             </a-form-item>
             <a-form-item>
-              <div id="content"></div>
+              <div id="content" ref="content"></div>
             </a-form-item>
           </a-form>
         </a-col>
@@ -110,6 +110,7 @@ export default defineComponent({
   name: 'AdminDoc',
   setup() {
     const route = useRoute();
+    console.log("ref:", ref().value);
     console.log("路由：", route);
     console.log("route.path：", route.path);
     console.log("route.query：", route.query);
@@ -126,7 +127,7 @@ export default defineComponent({
       {
         title: '名称',
         dataIndex: 'name',
-        slots: { customRender: 'name'}
+        slots: {customRender: 'name'}
       },
       {
         title: 'Action',
@@ -176,19 +177,22 @@ export default defineComponent({
     // 因为树选择组件的属性状态，会随当前编辑的节点而变化,所以单独声明一个响应式变量
     const treeSelectData = ref();
     treeSelectData.value = [];
-    const doc = ref({});
+    const doc = ref();
+    doc.value = {};
     const modalVisible = ref(false);
     const modalLoading = ref(false);
-    // const editor = new E('#content');
-    // editor.config.zIndex = 0;
+    const editor = new E('#content');
+    editor.config.zIndex = 0;
 
     const handleSave = () => {
       modalLoading.value = true;
+      doc.value.content = editor.txt.html();
       axios.post("/doc/save", doc.value).then((response) => {
         modalLoading.value = false;
         const data = response.data; //data = commonResp
         if (data.success) {
-          modalVisible.value = false;
+          //modalVisible.value = false;
+          message.success("保存成功！");
 
           //重新加载列表
           handleQuery();
@@ -265,11 +269,28 @@ export default defineComponent({
     };
 
     /**
+     * 内容查询
+     **/
+    const handleQueryContent = () => {
+      axios.get("/doc/find-content/" + doc.value.id).then((response) => {
+        const data = response.data;
+        if (data.success) {
+          editor.txt.html(data.content);
+        } else {
+          message.error(data.message);
+        }
+      });
+    };
+
+    /**
      * 编辑
      */
     const edit = (record: any) => {
+      //清空文本框
+      editor.txt.html("");
       modalVisible.value = true;
       doc.value = Tool.copy(record);
+      handleQueryContent();
 
       // 不能选择当前节点及其所有子孙节点，作为父节点，会使树断开
       treeSelectData.value = Tool.copy(level1.value);
@@ -284,6 +305,8 @@ export default defineComponent({
      * 增加
      */
     const add = (record: any) => {
+      //清空文本框
+      editor.txt.html("");
       modalVisible.value = true;
       doc.value = {
         ebookId: route.query.ebookId
@@ -323,12 +346,8 @@ export default defineComponent({
       });
     };
 
-
     onMounted(() => {
       handleQuery();
-      // 只能放在这里面，等页面渲染完成后，才能拿到选择器
-      const editor = new E('#content');
-      editor.config.zIndex = 0;
       editor.create();
     });
 
