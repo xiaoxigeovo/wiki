@@ -2,8 +2,8 @@ package com.lujingxi.wiki.controller;
 
 import com.lujingxi.wiki.req.DocQueryReq;
 import com.lujingxi.wiki.req.DocSaveReq;
-import com.lujingxi.wiki.resp.CommonResp;
 import com.lujingxi.wiki.resp.DocQueryResp;
+import com.lujingxi.wiki.resp.CommonResp;
 import com.lujingxi.wiki.resp.PageResp;
 import com.lujingxi.wiki.service.DocService;
 import org.springframework.web.bind.annotation.*;
@@ -57,5 +57,12 @@ public class DocController {
         String content = docService.findContent(id);
         resp.setContent(content);
         return resp;
+    }
+
+    @GetMapping("/vote/{id}")
+    public CommonResp vote(@PathVariable Long id) {
+        CommonResp commonResp = new CommonResp();
+        docService.vote(id);
+        return commonResp;
     }
 }
