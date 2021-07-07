@@ -7,6 +7,7 @@ import com.lujingxi.wiki.domain.Doc;
 import com.lujingxi.wiki.domain.DocExample;
 import com.lujingxi.wiki.mapper.ContentMapper;
 import com.lujingxi.wiki.mapper.DocMapper;
+import com.lujingxi.wiki.mapper.DocMapperCust;
 import com.lujingxi.wiki.req.DocQueryReq;
 import com.lujingxi.wiki.req.DocSaveReq;
 import com.lujingxi.wiki.resp.DocQueryResp;
@@ -29,6 +30,9 @@ public class DocService {
     //@Autowired
     @Resource
     private DocMapper docMapper;
+
+    @Resource
+    private DocMapperCust docMapperCust;
 
     @Resource
     private ContentMapper contentMapper;
@@ -84,6 +88,8 @@ public class DocService {
         if (ObjectUtils.isEmpty(req.getId())) {
             // 新增
             doc.setId(snowFlake.nextId());
+            doc.setViewCount(0);
+            doc.setVoteCount(0);
             docMapper.insert(doc);
 
             content.setId(doc.getId());
@@ -114,6 +120,8 @@ public class DocService {
 
     public String findContent(Long id) {
         Content content = contentMapper.selectByPrimaryKey(id);
+        //文档阅读数+1
+        docMapperCust.increaseViewCount(id);
         if (ObjectUtils.isEmpty(content)) {
             return "";
         } else {
