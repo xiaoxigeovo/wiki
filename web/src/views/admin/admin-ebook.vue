@@ -284,12 +284,6 @@ export default defineComponent({
 
     onMounted(() => {
       handleQueryCategory();
-      handleQuery({
-        page: 1,
-        size: pagination.value.pageSize,
-
-      });
-
     });
 
     return {
