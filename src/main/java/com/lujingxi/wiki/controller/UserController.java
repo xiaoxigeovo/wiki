@@ -1,10 +1,12 @@
 package com.lujingxi.wiki.controller;
 
+import com.lujingxi.wiki.req.UserLoginReq;
 import com.lujingxi.wiki.req.UserQueryReq;
 import com.lujingxi.wiki.req.UserResetPasswordReq;
 import com.lujingxi.wiki.req.UserSaveReq;
 import com.lujingxi.wiki.resp.CommonResp;
 import com.lujingxi.wiki.resp.PageResp;
+import com.lujingxi.wiki.resp.UserLoginResp;
 import com.lujingxi.wiki.resp.UserQueryResp;
 import com.lujingxi.wiki.service.UserService;
 import org.springframework.util.DigestUtils;
@@ -48,6 +50,14 @@ public class UserController {
         req.setPassword(DigestUtils.md5DigestAsHex(req.getPassword().getBytes()));
         CommonResp resp = new CommonResp<>();
         userService.resetPassword(req);
+        return resp;
+    }
+
+    @PostMapping("/login")
+    public CommonResp login(@Valid @RequestBody UserLoginReq req) {
+        req.setPassword(DigestUtils.md5DigestAsHex(req.getPassword().getBytes()));
+        CommonResp<UserLoginResp> resp = new CommonResp<>();
+        UserLoginResp userLoginResp = userService.login(req);
         return resp;
     }
 }

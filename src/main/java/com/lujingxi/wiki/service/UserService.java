@@ -7,10 +7,12 @@ import com.lujingxi.wiki.domain.UserExample;
 import com.lujingxi.wiki.exception.BusinessException;
 import com.lujingxi.wiki.exception.BusinessExceptionCode;
 import com.lujingxi.wiki.mapper.UserMapper;
+import com.lujingxi.wiki.req.UserLoginReq;
 import com.lujingxi.wiki.req.UserQueryReq;
 import com.lujingxi.wiki.req.UserResetPasswordReq;
 import com.lujingxi.wiki.req.UserSaveReq;
 import com.lujingxi.wiki.resp.PageResp;
+import com.lujingxi.wiki.resp.UserLoginResp;
 import com.lujingxi.wiki.resp.UserQueryResp;
 import com.lujingxi.wiki.util.CopyUtil;
 import com.lujingxi.wiki.util.SnowFlake;
@@ -113,5 +115,27 @@ public class UserService {
     public void resetPassword(UserResetPasswordReq req) {
         User user = CopyUtil.copy(req, User.class);
         userMapper.updateByPrimaryKeySelective(user);
+    }
+
+    /**
+     * 登录
+     */
+    public UserLoginResp login(UserLoginReq req) {
+        User userDb = selectByLoginName(req.getLoginName());
+        if (ObjectUtils.isEmpty(userDb)) {
+            // 用户不存在
+            LOG.info("用户不存在，{}",req.getLoginName());
+            throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
+        } else {
+            if (userDb.getPassword().equals(req.getPassword())) {
+                //登录成功
+                UserLoginResp userLoginResp = CopyUtil.copy(userDb, UserLoginResp.class);
+                return userLoginResp;
+            } else {
+                //密码不对
+                LOG.info("密码不对，输入密码：{}，数据库密码：{}",req.getPassword(),userDb.getPassword());
+                throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
+            }
+        }
     }
 }
